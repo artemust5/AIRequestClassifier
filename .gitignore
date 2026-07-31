@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+.idea
+input_requests.csv
+output.json
+report.md
