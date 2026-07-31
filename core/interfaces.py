@@ -18,5 +18,5 @@ class DataWriter(ABC):
 
 class LLMClient(ABC):
     @abstractmethod
-    async def process_request_async(self, request: RawRequest) -> ParsedRequest:
+    async def process_batch_async(self, requests: List[RawRequest]) -> List[ParsedRequest]:
         pass
