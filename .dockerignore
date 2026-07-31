@@ -1,0 +1,11 @@
+.env
+.venv/
+venv/
+env/
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+*$py.class
+output.json
+report.md
