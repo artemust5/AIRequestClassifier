@@ -1,0 +1,2 @@
+﻿id,channel,message_content
+201,slack,This should fail validation because the column name is wrong.

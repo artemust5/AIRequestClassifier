@@ -1,7 +1,7 @@
 import os
 import asyncio
 from dotenv import load_dotenv
-from core.io_handlers import CSVDataReader, LocalDataWriter
+from core.io_handlers import CSVDataReader, JSONDataWriter, MarkdownReportWriter
 from core.llm_client import AsyncGeminiLLMClient
 from core.telegram_client import TelegramNotifier
 
@@ -28,7 +28,10 @@ async def run_pipeline():
     _ensure_input_file(input_file)
 
     reader = CSVDataReader()
-    writer = LocalDataWriter()
+
+    json_writer = JSONDataWriter()
+    report_writer = MarkdownReportWriter()
+
     llm_client = AsyncGeminiLLMClient(api_key=api_key)
     telegram_notifier = TelegramNotifier()
 
@@ -45,8 +48,8 @@ async def run_pipeline():
 
     parsed_requests = [req for batch in batch_results for req in batch]
 
-    writer.write_json(parsed_requests, "output.json")
-    writer.write_report(parsed_requests, "report.md")
+    json_writer.write(parsed_requests, "output.json")
+    report_writer.write(parsed_requests, "report.md")
 
     with open("report.md", "r", encoding="utf-8") as f:
         report_text = f.read()

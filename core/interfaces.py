@@ -1,22 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import List
-from core.models import RawRequest, ParsedRequest
+from typing import List, Dict, Any
 
 class DataReader(ABC):
     @abstractmethod
-    def read(self, filepath: str) -> List[RawRequest]:
+    def read(self, filepath: str) -> List[Dict[str, Any]]:
         pass
 
 class DataWriter(ABC):
     @abstractmethod
-    def write_json(self, data: List[ParsedRequest], filepath: str) -> None:
-        pass
-
-    @abstractmethod
-    def write_report(self, data: List[ParsedRequest], filepath: str) -> None:
-        pass
-
-class LLMClient(ABC):
-    @abstractmethod
-    async def process_batch_async(self, requests: List[RawRequest]) -> List[ParsedRequest]:
+    def write(self, data: List[Dict[str, Any]], filepath: str) -> None:
         pass

@@ -1,32 +1,43 @@
 import csv
 import json
-from typing import List
+import logging
+from typing import List, Dict, Any
 from collections import Counter
-from core.models import RawRequest, ParsedRequest
 from core.interfaces import DataReader, DataWriter
+
+logger = logging.getLogger(__name__)
 
 
 class CSVDataReader(DataReader):
-    def read(self, filepath: str) -> List[RawRequest]:
+    def read(self, filepath: str) -> List[Dict[str, Any]]:
+        required_columns = {'id', 'raw_text'}
         requests = []
+
         with open(filepath, mode='r', encoding='utf-8-sig') as file_obj:
             reader = csv.DictReader(file_obj)
+
+            if not reader.fieldnames or not required_columns.issubset(set(reader.fieldnames)):
+                raise ValueError(f"Missing required columns in CSV. Expected: {required_columns}")
+
             for row in reader:
-                requests.append(RawRequest(**row))
+                requests.append(row)
+
         return requests
 
 
-class LocalDataWriter(DataWriter):
-    def write_json(self, data: List[ParsedRequest], filepath: str) -> None:
+class JSONDataWriter(DataWriter):
+    def write(self, data: List[Dict[str, Any]], filepath: str) -> None:
         with open(filepath, mode='w', encoding='utf-8') as file_obj:
-            json_data = [item.model_dump(mode='json') for item in data]
-            json.dump(json_data, file_obj, ensure_ascii=False, indent=4)
+            json.dump(data, file_obj, ensure_ascii=False, indent=4)
+        logger.info(f"JSON data successfully saved to {filepath}")
 
-    def write_report(self, data: List[ParsedRequest], filepath: str) -> None:
-        category_counts = Counter(req.category.value for req in data)
-        priority_counts = Counter(req.priority.value for req in data)
-        dept_counts = Counter(req.target_department for req in data if req.target_department)
-        clarification_needed = [req for req in data if req.needs_clarification]
+
+class MarkdownReportWriter(DataWriter):
+    def write(self, data: List[Dict[str, Any]], filepath: str) -> None:
+        category_counts = Counter(req.get('category', 'unknown') for req in data)
+        priority_counts = Counter(req.get('priority', 'unknown') for req in data)
+        dept_counts = Counter(req.get('target_department') for req in data if req.get('target_department'))
+        clarification_needed = [req for req in data if req.get('needs_clarification')]
 
         with open(filepath, mode='w', encoding='utf-8') as file_obj:
             file_obj.write("# Звіт класифікації запитів\n\n")
@@ -45,5 +56,7 @@ class LocalDataWriter(DataWriter):
 
             file_obj.write("\n## Запити, що потребують уточнення\n")
             for req in clarification_needed:
-                reason = req.missing_info_reason or 'Не вказано'
-                file_obj.write(f"- ID: {req.id} | Причина: {reason}\n")
+                reason = req.get('missing_info_reason') or 'Не вказано'
+                file_obj.write(f"- ID: {req.get('id', 'N/A')} | Причина: {reason}\n")
+
+        logger.info(f"Markdown report successfully saved to {filepath}")

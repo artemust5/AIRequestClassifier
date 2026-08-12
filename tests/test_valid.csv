@@ -1,0 +1,6 @@
+﻿id,channel,timestamp,raw_text
+101,slack,2023-10-01T10:00,Please set up a Jira integration with our GitHub repo.
+102,email,2023-10-01T10:05,"I can't log into the corporate VPN, getting error 403."
+103,telegram,2023-10-01T10:10,Can someone pull the Q3 sales report for the marketing team?
+104,slack,2023-10-01T10:15,Need a script to automatically delete inactive users after 90 days.
+105,email,2023-10-01T10:20,We need to talk about.
